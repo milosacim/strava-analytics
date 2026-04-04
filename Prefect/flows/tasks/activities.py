@@ -43,6 +43,7 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
             response.raise_for_status()
     except RequestException as e:
         print(f"There was an error while processing the request. \n {e}")
+        raise
 
 @task
 def get_data_from_strava(params: dict):
