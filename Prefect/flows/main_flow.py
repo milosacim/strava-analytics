@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import os
 from dotenv import load_dotenv
 from prefect import flow
@@ -17,7 +18,9 @@ if __name__ == "__main__":
         "client_id": os.getenv('STRAVA_CLIENT_ID'),
         "client_secret": os.getenv('STRAVA_CLIENT_SECRET'),
         "refresh_token": os.getenv('STRAVA_REFRESH_TOKEN'),
-        "grant_type": 'refresh_token'
+        "grant_type": 'refresh_token',
+        "after": "2026-04-01",
+        "before": "2026-06-30"
     }
 
     main_flow(_token_params)
