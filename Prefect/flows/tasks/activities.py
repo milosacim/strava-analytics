@@ -11,7 +11,20 @@ from tasks.autorization import get_access_token
 
 @materialize("gs://my-strava-data-files")
 def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str = None):
+    """
+    Fetches Strava activities for a date range and uploads them to GCS as JSON.
 
+    Materializes the result as a Prefect asset at gs://my-strava-data-files.
+    File is stored at: raw_data/activities_{after}_{before}.json
+
+    Args:
+        access_token: A valid Strava API access token.
+        before: Upper bound date string in 'YYYY-MM-DD' format.
+        after: Lower bound date string in 'YYYY-MM-DD' format.
+
+    Raises:
+        RequestException: If the Strava API request fails.
+    """
     headers = {"Authorization": f"Bearer {access_token}"}
 
     try:
@@ -47,5 +60,13 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
 
 @task
 def get_data_from_strava(params: dict):
+    """
+    Prefect task. Orchestrates token retrieval and activity upload to GCS.
+
+    Args:
+        params: Dict containing Strava OAuth credentials (client_id, client_secret,
+                refresh_token, grant_type) and date range keys 'before' and 'after'
+                in 'YYYY-MM-DD' format.
+    """
     token = get_access_token(params)
     get_data_and_upload_to_gcs(token, before=params["before"], after=params["after"])

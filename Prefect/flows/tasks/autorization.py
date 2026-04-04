@@ -5,6 +5,19 @@ from prefect import task
 
 @task
 def get_access_token(params: dict) -> str:
+    """
+    Prefect task. Exchanges a Strava refresh token for a short-lived access token.
+
+    Args:
+        params: Dict containing Strava OAuth credentials and date range fields.
+                Required keys: client_id, client_secret, refresh_token, grant_type.
+
+    Returns:
+        A Strava API access token string.
+
+    Raises:
+        RequestException: If the token request fails.
+    """
     try:
         response = requests.post(
             url="https://www.strava.com/oauth/token", 

@@ -7,6 +7,17 @@ from tasks.activities import get_data_from_strava
 
 @flow
 def main_flow(request_params: dict):
+    """
+    Prefect flow. Entry point for the Strava analytics pipeline.
+
+    Triggers the get_data_from_strava task which handles OAuth token exchange
+    and uploads activities data to GCS.
+
+    Args:
+        request_params: Dict containing Strava OAuth credentials and date range.
+                        Keys: client_id, client_secret, refresh_token, grant_type,
+                        before, after (dates in 'YYYY-MM-DD' format).
+    """
     get_data_from_strava(request_params)
 
 
