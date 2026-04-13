@@ -12,10 +12,7 @@ from tasks.autorization import get_access_token
 @materialize("gs://my-strava-data-files")
 def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str = None):
     """
-    Fetches Strava activities for a date range and uploads them to GCS as JSON.
-
-    Materializes the result as a Prefect asset at gs://my-strava-data-files.
-    File is stored at: raw_data/activities_{after}_{before}.json
+    Fetches Strava activities for a date range and uploads them to GCS as JSON.s
 
     Args:
         access_token: A valid Strava API access token.
@@ -40,7 +37,7 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
         )
         if response.status_code == 200:
 
-            data = response.json()
+            data = "\n".join(json.dumps(row) for row in response.json())
 
             bucket_name = "my-strava-data-files"
     
@@ -49,7 +46,7 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
             blob = bucket.blob(f"raw_data/activities{after.replace('-', '_')}_{before.replace('-', '_')}.json")
 
             blob.upload_from_string(
-                data=json.dumps(data, indent=2),
+                data=data,
                 content_type="application/json"
             )
         else:

@@ -14,7 +14,7 @@ dbt-bigquery>=1.7.0
 # GCP
 google-cloud-bigquery>=3.13.0
 google-cloud-secret-manager>=2.16.0
-google-cloud-storage>=3.9.0
+google-cloud-storage>=2.0.0
 
 # Data handling
 pandas>=2.1.0
