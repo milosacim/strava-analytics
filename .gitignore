@@ -416,3 +416,15 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Python virtual env
+*venv*
+
+# Python version file
+.python-version
+
+# IDE folders
+.vscode
+
+#key files
+strava*.json
