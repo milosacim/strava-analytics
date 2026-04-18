@@ -1,13 +1,14 @@
 import requests
 import json
 
-from prefect import task
+from prefect import get_run_logger, task
 from prefect.assets import materialize
 from requests.exceptions import RequestException
 from google.cloud import storage
 from datetime import datetime
 
 from tasks.autorization import get_access_token
+
 
 @materialize("gs://my-strava-data-files")
 def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str = None):
@@ -22,6 +23,9 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
     Raises:
         RequestException: If the Strava API request fails.
     """
+
+    logger = get_run_logger()
+
     headers = {"Authorization": f"Bearer {access_token}"}
 
     try:
@@ -45,14 +49,24 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
             bucket = client.bucket(bucket_name)
             blob = bucket.blob(f"raw_data/activities{after.replace('-', '_')}_{before.replace('-', '_')}.json")
 
-            blob.upload_from_string(
-                data=data,
-                content_type="application/json"
-            )
+            is_uploaded = bucket.get_blob(blob_name=blob.name)
+
+            if is_uploaded == None:
+
+                blob.upload_from_string(
+                    data=data,
+                    content_type="application/json"
+                )
+
+                blob.metadata = {"Loaded": "False"}
+                blob.patch(client=client)
+            else:
+                logger.info(f"File {blob.name} is already uploaded...")
         else:
             response.raise_for_status()
+            
     except RequestException as e:
-        print(f"There was an error while processing the request. \n {e}")
+        logger.warning(f"There was an error while processing the request. \n {e}")
         raise
 
 @task
