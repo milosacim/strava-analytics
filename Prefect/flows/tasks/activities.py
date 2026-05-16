@@ -1,21 +1,24 @@
+import os
+
+from prefect.cache_policies import NO_CACHE
 import requests
 import json
 
 from prefect import get_run_logger, task
 from prefect.assets import materialize
 from requests.exceptions import RequestException
-from google.cloud import storage
 from datetime import datetime
 
-from tasks.autorization import get_access_token
+BUCKET = os.getenv("BUCKET")
 
-
-@materialize("gs://my-strava-data-files")
-def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str = None):
+@materialize(f"gs://{BUCKET}", cache_policy=NO_CACHE)
+def get_data_and_upload_to_gcs(storage_client, access_token: str, before: str = None, after: str = None):
     """
-    Fetches Strava activities for a date range and uploads them to GCS as JSON.s
+    Fetches Strava activities for a date range and uploads them to GCS as
+    newline-delimited JSON. Skips the upload if the target blob already exists.
 
     Args:
+        storage_client: An authenticated google.cloud.storage.Client.
         access_token: A valid Strava API access token.
         before: Upper bound date string in 'YYYY-MM-DD' format.
         after: Lower bound date string in 'YYYY-MM-DD' format.
@@ -42,24 +45,17 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
         if response.status_code == 200:
 
             data = "\n".join(json.dumps(row) for row in response.json())
-
-            bucket_name = "my-strava-data-files"
     
-            client = storage.Client()
-            bucket = client.bucket(bucket_name)
+            bucket = storage_client.bucket(BUCKET)
             blob = bucket.blob(f"raw_data/activities{after.replace('-', '_')}_{before.replace('-', '_')}.json")
 
-            is_uploaded = bucket.get_blob(blob_name=blob.name)
-
-            if is_uploaded == None:
+            if not blob.exists(storage_client):
 
                 blob.upload_from_string(
                     data=data,
                     content_type="application/json"
                 )
 
-                blob.metadata = {"Loaded": "False"}
-                blob.patch(client=client)
             else:
                 logger.info(f"File {blob.name} is already uploaded...")
         else:
@@ -68,16 +64,3 @@ def get_data_and_upload_to_gcs(access_token: str, before: str = None, after: str
     except RequestException as e:
         logger.warning(f"There was an error while processing the request. \n {e}")
         raise
-
-@task
-def get_data_from_strava(params: dict):
-    """
-    Prefect task. Orchestrates token retrieval and activity upload to GCS.
-
-    Args:
-        params: Dict containing Strava OAuth credentials (client_id, client_secret,
-                refresh_token, grant_type) and date range keys 'before' and 'after'
-                in 'YYYY-MM-DD' format.
-    """
-    token = get_access_token(params)
-    get_data_and_upload_to_gcs(token, before=params["before"], after=params["after"])
