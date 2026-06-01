@@ -1,0 +1,67 @@
+version: 2
+
+sources:
+  - name: raw_activities
+    database: strava-dashboard-487415
+    schema: bronze_layer
+    tables:
+      - name: ext_activities_raw
+
+  - name: raw_athlete
+    database: strava-dashboard-487415
+    schema: bronze_layer
+    tables:
+      - name: ext_athlete_raw
+
+models:
+
+  - name: stg_strava__athlete
+    config:
+      contract: {enforced: true}
+    columns:
+      - name: athlete_id
+        data_type: int64
+      - name: first_name
+        data_type: string
+      - name: last_name
+        data_type: string
+      - name: city
+        data_type: string
+      - name: state
+        data_type: string
+      - name: country
+        data_type: string
+
+
+  - name: stg_strava__activities
+    config:
+      contract: {enforced: true}
+    columns:
+      - name: activity_id
+        data_type: int64
+      - name: athlete_id
+        data_type: int64
+      - name: activity_name
+        data_type: string
+      - name: sport_type
+        data_type: string
+      - name: start_date
+        data_type: date
+      - name: distance_km
+        data_type: numeric(8, 2)
+      - name: elapsed_time_mins
+        data_type: numeric(6, 2)
+      - name: total_elevation_gain
+        data_type: numeric(6, 1)
+      - name: average_speed_kmh
+        data_type: numeric(5, 2)
+      - name: max_speed_kmh
+        data_type: numeric(5, 2)
+      - name: average_watts
+        data_type: numeric(5, 1)
+      - name: average_heartrate
+        data_type: numeric(4, 1)
+      - name: max_heartrate
+        data_type: numeric(4, 1)
+      - name: suffer_score
+        data_type: numeric(5, 1) 

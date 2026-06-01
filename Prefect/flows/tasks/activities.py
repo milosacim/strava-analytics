@@ -12,7 +12,7 @@ from datetime import datetime
 BUCKET = os.getenv("BUCKET")
 
 @materialize(f"gs://{BUCKET}", cache_policy=NO_CACHE)
-def get_data_and_upload_to_gcs(storage_client, access_token: str, before: str = None, after: str = None):
+def get_data_and_upload_activities_to_gcs(storage_client, access_token: str, before: str = None, after: str = None):
     """
     Fetches Strava activities for a date range and uploads them to GCS as
     newline-delimited JSON. Skips the upload if the target blob already exists.
@@ -47,7 +47,7 @@ def get_data_and_upload_to_gcs(storage_client, access_token: str, before: str = 
             data = "\n".join(json.dumps(row) for row in response.json())
     
             bucket = storage_client.bucket(BUCKET)
-            blob = bucket.blob(f"raw_data/activities{after.replace('-', '_')}_{before.replace('-', '_')}.json")
+            blob = bucket.blob(f"raw_data/activities/activities{after.replace('-', '_')}_{before.replace('-', '_')}.json")
 
             if not blob.exists(storage_client):
 

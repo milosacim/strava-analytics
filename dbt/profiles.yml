@@ -1,12 +1,11 @@
 strava_analytics:
-  target: dev
-  outputs:
-    dev:
-      type: bigquery
-      method: service-account
-      project: strava-dashboard-487415
-      dataset: strava_dev
-      keyfile: ../strava-dashboard-487415-2dde21217ace.json
-      location: EU
-      threads: 1
-      timeout_seconds: 300
+    target: development
+    outputs:
+      development:
+        type: bigquery
+        method: oauth
+        project: strava-dashboard-487415
+        dataset: default_dataset
+        location: europe-west3
+        threads: 1
+        timeout_seconds: 300

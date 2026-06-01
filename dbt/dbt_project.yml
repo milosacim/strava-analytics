@@ -5,10 +5,7 @@ config-version: 2
 profile: strava_analytics
 
 model-paths: ["models"]
-seed-paths: ["seeds"]
 macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
-test-paths: ["tests"]
 
 target-path: "target"
 clean-targets:
@@ -16,10 +13,11 @@ clean-targets:
   - "dbt_packages"
 
 models:
+  +on_schema_change: "sync_all_columns"
   strava_analytics:
     staging:
-      +schema: staging
-      +materialized: view
-    marts:
-      +schema: marts
+      +schema: silver_layer
       +materialized: table
+    marts:
+      +schema: gold_layer
+      +materialized: view
