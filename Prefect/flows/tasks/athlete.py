@@ -40,18 +40,10 @@ def get_data_and_upload_athlete_to_gcs(storage_client, access_token: str):
             bucket = storage_client.bucket(BUCKET)
             blob = bucket.blob(f"raw_data/athlete/athlete.json")
 
-            if blob.exists(storage_client):
-
-                blob.delete()
-                blob.upload_from_string(
-                    data=data,
-                    content_type="application/json"
-                )
-            else:
-                blob.upload_from_string(
-                    data=data,
-                    content_type="application/json"
-                )
+            blob.upload_from_string(
+                data=data,
+                content_type="application/json"
+            )
         else:
             response.raise_for_status()
             

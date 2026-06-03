@@ -4,18 +4,20 @@ from prefect import flow
 
 load_dotenv()
 
+from tasks.runner import run_dbt_staging
 from tasks.authorization import get_access_token
 from tasks.bigquery_setup import create_bq_dataset, create_external_table
 from tasks.activities import get_data_and_upload_activities_to_gcs
 from tasks.athlete import get_data_and_upload_athlete_to_gcs
 
-from tasks.staging_activities import create_staging_activities
-from tasks.staging_athlete import create_staging_athlete
-
 from google.cloud import storage, bigquery
 
 from schemas.activities import ACTIVITIES_SCHEMA
 from schemas.athlete import ATHLETE_SCHEMA
+
+project=os.getenv("PROJECT")
+bigquery_client = bigquery.Client(project=project)
+storage_client = storage.Client(project=project)
 
 @flow
 def main_flow():
@@ -36,15 +38,12 @@ def main_flow():
     }
 
     ingest_flow(params)
-    staging_flow()
+    staging_flow(bigquery_client)
 
 @flow
-def staging_flow():
-    project=os.getenv("PROJECT")
-    bigquery_client = bigquery.Client(project=project)
-    create_bq_dataset(bigquery_client, dataset_name="silver_layer")
-    create_staging_activities()
-    create_staging_athlete()
+def staging_flow(client):
+    create_bq_dataset(client, dataset_name="silver_layer")
+    run_dbt_staging()
 
 @flow
 def ingest_flow(params: dict):
@@ -60,28 +59,41 @@ def ingest_flow(params: dict):
                 in 'YYYY-MM-DD' format.
     """
 
-    project=os.getenv("PROJECT")
-    storage_client = storage.Client(project=project)
-    bigquery_client = bigquery.Client(project=project)
-
     bucket = storage_client.bucket(os.getenv("BUCKET"))
+
+    token = get_access_token(params)
 
     get_data_and_upload_activities_to_gcs(
         storage_client=storage_client,
-        access_token=get_access_token(params), 
+        access_token=token,
         before=params["before"], 
         after=params["after"]
     )
 
     get_data_and_upload_athlete_to_gcs(
         storage_client=storage_client,
-        access_token=get_access_token(params),
+        access_token=token,
     )
 
     create_bq_dataset(bigquery_client, dataset_name="bronze_layer")
 
-    create_external_table(bucket, ACTIVITIES_SCHEMA, "raw_data/activities", "activities", bigquery_client)
-    create_external_table(bucket, ATHLETE_SCHEMA, "raw_data/athlete", "athlete", bigquery_client)
+    create_external_table(
+        bucket=bucket, 
+        bigquery_client=bigquery_client,
+        schema=ACTIVITIES_SCHEMA, 
+        folder="raw_data/activities", 
+        name="activities"
+        
+    )
+
+    create_external_table(
+        bucket=bucket, 
+        bigquery_client=bigquery_client,
+        schema=ATHLETE_SCHEMA, 
+        folder="raw_data/athlete", 
+        name="athlete", 
+        
+    )
 
 
 if __name__ == "__main__":

@@ -36,6 +36,9 @@ def create_external_table(bucket, schema, folder: str, name: str, bigquery_clien
     Args:
         bucket: A google.cloud.storage.Bucket whose 'raw_data/*.json' objects
                 back the external table.
+        schema: List of bigquery.SchemaField defining the JSON column layout.
+        folder: GCS prefix under the bucket to scan, e.g. 'raw_data/activities'.
+        name: Logical name; the resulting table is named 'ext_{name}_raw' in bronze_layer.
         bigquery_client: An authenticated google.cloud.bigquery.Client.
     """
 
