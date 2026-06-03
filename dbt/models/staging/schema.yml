@@ -1,0 +1,131 @@
+version: 2
+
+sources:
+  - name: raw_activities
+    description: "Raw Strava activity data ingested to GCS and exposed as a BigQuery external table."
+    database: strava-dashboard-487415
+    schema: bronze_layer
+    tables:
+      - name: ext_activities_raw
+
+  - name: raw_athlete
+    description: "Raw Strava athlete profile ingested to GCS and exposed as a BigQuery external table."
+    database: strava-dashboard-487415
+    schema: bronze_layer
+    tables:
+      - name: ext_athlete_raw
+
+models:
+
+  - name: stg_strava__athlete
+    description: "One row per Strava athlete. Currently only the authenticated user. Rebuilt fully on every run."
+    config:
+      tags: [staging]
+      contract: {enforced: true}
+    columns:
+      - name: athlete_id
+        description: "Unique identifier of an athlete."
+        data_type: int64
+        constraints:
+            - type: not_null
+            - type: primary_key
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: "Athlete's first name."
+        data_type: string
+      - name: last_name
+        description: "Athlete's last name."
+        data_type: string
+      - name: city
+        description: "Athlete's city."
+        data_type: string
+      - name: state
+        description: "Athlete's state."
+        data_type: string
+      - name: country
+        description: "Athlete's country."
+        data_type: string
+
+
+  - name: stg_strava__activities
+    description: "One row per Strava activity. Built incrementally with a 15-day look-back window for late edits."
+    config:
+      tags: [staging]
+      contract: {enforced: true}
+    columns:
+      - name: activity_id
+        description: "Unique identifier of the activity."
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key 
+        data_tests:
+          - unique
+          - not_null
+      - name: athlete_id
+        description: "Unique identifier of an athlete."
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_strava__athlete')
+                field: athlete_id
+      - name: activity_name
+        description: "Name of the Strava activity."
+        data_type: string
+      - name: sport_type
+        description: "Type of the sport like: Ride, Run..."
+        data_type: string
+      - name: trainer
+        description: "Boolean flag indicating if the activity was done on the trainer."
+        data_type: boolean
+      - name: start_date
+        description: "Start date of the activity."
+        data_type: date
+        data_tests:
+          - not_null
+      - name: distance_km
+        description: "Distance in kilometers."
+        data_type: numeric(8, 2)
+        data_tests:
+          - not_null
+      - name: moving_time_mins
+        description: "Moving time in minutes."
+        data_type: numeric(6, 2)
+      - name: elapsed_time_mins
+        description: "Elapsed time in minutes including pauses."
+        data_type: numeric(6, 2)
+      - name: total_elevation_gain
+        description: "Total elevation gained in meters."
+        data_type: numeric(6, 2)
+      - name: average_speed_kmh
+        description: "Average speed in kilometers per hour."
+        data_type: numeric(5, 2)
+      - name: max_speed_kmh
+        description: "Maximum speed in kilometers per hour."
+        data_type: numeric(5, 2)
+      - name: average_watts
+        description: "Average power in watts, estimated and real"
+        data_type: numeric(5, 2)
+      - name: average_heartrate
+        description: "Average heartrate during the activity in beats per minute."
+        data_type: numeric(5, 2)
+        data_tests:
+          - not_null
+      - name: max_heartrate
+        description: "Maximum heartrate during the activity in beats per minute."
+        data_type: numeric(5, 2)
+      - name: average_cadence
+        description: "Average cadence during the activity."
+        data_type: numeric(5, 2)
+      - name: kilojoules
+        description: "Estimated amount of energy spent during the activity."
+        data_type: numeric(6, 2)
+      - name: suffer_score
+        description: "Suffer score used to determine the intensity."
+        data_type: numeric(5, 2) 

@@ -1,3 +1,6 @@
+# dbt project for the Strava analytics medallion pipeline.
+# Staging models (silver_layer) clean raw bronze tables; marts (gold_layer) serve analytics.
+# Sources, contracts and tests are declared in models/*/schema.yml.
 name: strava_analytics
 version: '1.0.0'
 config-version: 2
@@ -5,10 +8,7 @@ config-version: 2
 profile: strava_analytics
 
 model-paths: ["models"]
-seed-paths: ["seeds"]
 macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
-test-paths: ["tests"]
 
 target-path: "target"
 clean-targets:
@@ -17,9 +17,12 @@ clean-targets:
 
 models:
   strava_analytics:
+    +persist_docs:
+      relation: true
+      columns: true
     staging:
-      +schema: staging
-      +materialized: view
+      +schema: silver_layer
+      +materialized: table
     marts:
-      +schema: marts
+      +schema: gold_layer
       +materialized: table

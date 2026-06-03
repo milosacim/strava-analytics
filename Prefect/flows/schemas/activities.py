@@ -1,7 +1,7 @@
 from google.cloud.bigquery import SchemaField
 
 ACTIVITIES_SCHEMA = [                                                                                                                                                             
-      SchemaField("id",                           "INTEGER",   "NULLABLE"),
+      SchemaField("id",                           "INTEGER",   "REQUIRED"),
       SchemaField("resource_state",               "INTEGER",   "NULLABLE"),                                                                                                         
       SchemaField("name",                         "STRING",    "NULLABLE"),                                                                                                         
       SchemaField("type",                         "STRING",    "NULLABLE"),                                                                                                         
@@ -56,7 +56,7 @@ ACTIVITIES_SCHEMA = [
       SchemaField("start_latlng",                 "FLOAT",     "REPEATED"),                                                                                                         
       SchemaField("end_latlng",                   "FLOAT",     "REPEATED"),
       SchemaField("athlete", "RECORD", "NULLABLE", fields=[                                                                                                                         
-          SchemaField("id",             "INTEGER", "NULLABLE"),
+          SchemaField("id",             "INTEGER", "REQUIRED"),
           SchemaField("resource_state", "INTEGER", "NULLABLE"),                                                                                                                     
       ]),         
       SchemaField("map", "RECORD", "NULLABLE", fields=[                                                                                                                             
