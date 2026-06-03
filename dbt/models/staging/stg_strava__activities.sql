@@ -19,7 +19,7 @@ with transformed as (
         trainer,
         cast(start_date as date)              as start_date,
         cast(distance / 1000 as numeric)      as distance_km,
-        cast(moving_time / 60 as numeric)   as moving_time_mins,
+        cast(moving_time / 60 as numeric)     as moving_time_mins,
         cast(elapsed_time / 60 as numeric)    as elapsed_time_mins,
         cast(total_elevation_gain as numeric) as total_elevation_gain,
         cast(average_speed * 3.6 as numeric)  as average_speed_kmh,
@@ -32,7 +32,7 @@ with transformed as (
         cast(suffer_score as numeric)         as suffer_score
     from {{ source('raw_activities', 'ext_activities_raw') }}
     {% if is_incremental() %}
-          where 
+          where 1=1
             cast(start_date as date) > date_sub(current_date(), interval 15 day)
             and has_heartrate = true
     {% endif %}

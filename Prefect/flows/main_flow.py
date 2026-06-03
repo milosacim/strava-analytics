@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from prefect import flow
+import datetime
 
 load_dotenv()
 
@@ -33,8 +34,8 @@ def main_flow():
         "client_secret": os.getenv('STRAVA_CLIENT_SECRET'),
         "refresh_token": os.getenv('STRAVA_REFRESH_TOKEN'),
         "grant_type": 'refresh_token',
-        "after": "2026-04-30",
-        "before": "2026-06-01"
+        "after": (datetime.datetime.now().date() - datetime.timedelta(days=6)).strftime("%Y-%m-%d"),
+        "before": datetime.datetime.now().date().strftime("%Y-%m-%d")
     }
 
     ingest_flow(params)

@@ -50,7 +50,7 @@ models:
 
 
   - name: stg_strava__activities
-    description: "One row per Strava activity. Built incrementally with a 15-day look-back window for late edits."
+    description: "One row per Strava activity. Built incrementally with a 7-day look-back window for late edits."
     config:
       tags: [staging]
       contract: {enforced: true}
