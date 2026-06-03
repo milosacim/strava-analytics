@@ -28,6 +28,7 @@ models:
         data_type: int64
         constraints:
             - type: not_null
+            - type: primary_key
         data_tests:
           - unique
           - not_null
@@ -58,7 +59,8 @@ models:
         description: "Unique identifier of the activity."
         data_type: int64
         constraints:
-            - type: not_null
+          - type: not_null
+          - type: primary_key 
         data_tests:
           - unique
           - not_null
@@ -66,14 +68,13 @@ models:
         description: "Unique identifier of an athlete."
         data_type: int64
         constraints:
-            - type: not_null
-            - type: foreign_key
-              expression: "{{ ref('stg_strava__athlete') }} (athlete_id)"
+          - type: not_null
         data_tests:
-          - not_null
+          - type: not_null
           - relationships:
-              to: ref('stg_strava__athlete')
-              field: athlete_id
+              arguments:
+                to: ref('stg_strava__athlete')
+                field: athlete_id
       - name: activity_name
         description: "Name of the Strava activity."
         data_type: string

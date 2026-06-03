@@ -1,7 +1,7 @@
 from google.cloud.bigquery import SchemaField
 
 ATHLETE_SCHEMA = [
-    SchemaField("id",             "INTEGER",   "NULLABLE"),
+    SchemaField("id",             "INTEGER",   "REQUIRED"),
     SchemaField("username",       "STRING",    "NULLABLE"),
     SchemaField("resource_state", "INTEGER",   "NULLABLE"),
     SchemaField("firstname",      "STRING",    "NULLABLE"),

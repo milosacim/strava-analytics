@@ -80,20 +80,22 @@ def ingest_flow(params: dict):
     create_external_table(
         bucket=bucket, 
         bigquery_client=bigquery_client,
-        schema=ACTIVITIES_SCHEMA, 
-        folder="raw_data/activities", 
-        name="activities"
+        schema=ATHLETE_SCHEMA, 
+        folder="raw_data/athlete", 
+        name="athlete", 
         
     )
 
     create_external_table(
         bucket=bucket, 
         bigquery_client=bigquery_client,
-        schema=ATHLETE_SCHEMA, 
-        folder="raw_data/athlete", 
-        name="athlete", 
+        schema=ACTIVITIES_SCHEMA, 
+        folder="raw_data/activities", 
+        name="activities"
         
     )
+
+
 
 
 if __name__ == "__main__":
