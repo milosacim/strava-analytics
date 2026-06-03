@@ -27,7 +27,7 @@ with transformed as (
         cast(average_watts as numeric)        as average_watts,
         cast(average_heartrate as numeric)    as average_heartrate,
         cast(max_heartrate as numeric)        as max_heartrate,
-        cast(average_cadence as numeric)      as average_cadence,
+        cast(coalesce(average_cadence, 0) as numeric)      as average_cadence,
         cast(kilojoules as numeric)           as kilojoules,
         cast(suffer_score as numeric)         as suffer_score
     from {{ source('raw_activities', 'ext_activities_raw') }}
