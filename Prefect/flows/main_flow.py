@@ -4,7 +4,7 @@ from prefect import flow
 
 load_dotenv()
 
-from tasks.runner import run_dbt_staging
+from tasks.runner import run_dbt_reporting, run_dbt_staging
 from tasks.authorization import get_access_token
 from tasks.bigquery_setup import create_bq_dataset, create_external_table
 from tasks.activities import get_data_and_upload_activities_to_gcs
@@ -39,6 +39,12 @@ def main_flow():
 
     ingest_flow(params)
     staging_flow(bigquery_client)
+    reporting_flow(bigquery_client)
+
+@flow
+def reporting_flow(client):
+    create_bq_dataset(client, dataset_name="gold_layer")
+    run_dbt_reporting()
 
 @flow
 def staging_flow(client):

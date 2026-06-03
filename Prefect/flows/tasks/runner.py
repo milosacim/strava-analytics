@@ -16,3 +16,9 @@ def run_dbt_staging():
     """
     Prefect task. Runs every dbt model tagged 'staging' (the silver layer)."""
     _runner.invoke(["run", "--select", "tag:staging"])
+
+@task
+def run_dbt_reporting():
+    """
+    Prefect task. Runs every dbt model tagged 'reporting' (the gold layer)."""
+    _runner.invoke(["run", "--select", "tag:reporting"])
