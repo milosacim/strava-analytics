@@ -1,0 +1,39 @@
+version: 2
+
+models:
+
+  - name: rep_strava__activities
+    description: "Weekly aggregation of activities per athlete and sport type. Sourced from stg_strava__activities."
+    config:
+      tags: [reporting]
+    columns:
+      - name: date
+        description: "ISO-week start date (Monday) the activities are aggregated to."
+      - name: year
+        description: "Calendar year of the activity start date."
+      - name: month
+        description: "Calendar month (1-12) of the activity start date."
+      - name: week
+        description: "ISO-week label, prefixed with 'W' (e.g. 'W22')."
+      - name: athlete_id
+        description: "Foreign key referencing stg_strava__athlete.athlete_id."
+      - name: sport_type
+        description: "Strava sport type aggregated against, e.g. Ride, Run."
+      - name: distance_km
+        description: "Total kilometers covered in the week for this athlete and sport."
+      - name: moving_time_mins
+        description: "Total moving time in minutes."
+      - name: elapsed_time_mins
+        description: "Total elapsed wall-clock time in minutes, including pauses."
+      - name: total_elevation_gain
+        description: "Total elevation gained in meters."
+      - name: average_speed_kmh
+        description: "Average speed in kilometers per hour across activities."
+      - name: average_heartrate
+        description: "Average heart rate across activities, in beats per minute."
+      - name: average_cadence
+        description: "Average cadence across activities."
+      - name: average_kilojoules
+        description: "Average energy spent across activities, in kilojoules."
+      - name: average_suffer_score
+        description: "Average Strava suffer score across activities."
