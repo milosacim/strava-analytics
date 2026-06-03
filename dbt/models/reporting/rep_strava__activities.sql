@@ -1,3 +1,9 @@
+{{
+    config(
+        alias='fact_activities'    
+    )
+}}
+
 with cte as( 
     select 
         DATE_TRUNC(ac.start_date, ISOWEEK) as date,
@@ -15,7 +21,7 @@ with cte as(
         ac.average_cadence,
         ac.kilojoules,
         ac.suffer_score
-    from {{ ref('stg_strava__activities') }}
+    from {{ source('staging_activities', 'stg_activities') }} ac
 )
 select 
     date,

@@ -1,5 +1,12 @@
 version: 2
 
+sources:
+  - name: staging_activities
+    description: "Strava activities staging table with proper data types and correct units of measure."
+    database: strava-dashboard-487415
+    schema: silver_layer
+    tables:
+      - name: stg_activities
 models:
 
   - name: rep_strava__activities
