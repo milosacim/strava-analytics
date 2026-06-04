@@ -1,10 +1,11 @@
 import os
 from dotenv import load_dotenv
 from prefect import flow
+import datetime
 
 load_dotenv()
 
-from tasks.runner import run_dbt_staging
+from tasks.runner import run_dbt_reporting, run_dbt_staging
 from tasks.authorization import get_access_token
 from tasks.bigquery_setup import create_bq_dataset, create_external_table
 from tasks.activities import get_data_and_upload_activities_to_gcs
@@ -33,12 +34,18 @@ def main_flow():
         "client_secret": os.getenv('STRAVA_CLIENT_SECRET'),
         "refresh_token": os.getenv('STRAVA_REFRESH_TOKEN'),
         "grant_type": 'refresh_token',
-        "after": "2026-04-30",
-        "before": "2026-06-01"
+        "after": (datetime.datetime.now().date() - datetime.timedelta(days=6)).strftime("%Y-%m-%d"),
+        "before": datetime.datetime.now().date().strftime("%Y-%m-%d")
     }
 
     ingest_flow(params)
     staging_flow(bigquery_client)
+    reporting_flow(bigquery_client)
+
+@flow
+def reporting_flow(client):
+    create_bq_dataset(client, dataset_name="gold_layer")
+    run_dbt_reporting()
 
 @flow
 def staging_flow(client):

@@ -23,6 +23,6 @@ models:
     staging:
       +schema: silver_layer
       +materialized: table
-    marts:
+    reporting:
       +schema: gold_layer
-      +materialized: table
+      +materialized: view
